@@ -1,1 +1,109 @@
-aa
+---@class GMPanel
+---@field tabs table<string, function> -- Tabs for different functionalities
+local GMPanel = {}
+
+-- Mock UI library (Replace with actual game engine UI system)
+local UI = {
+    createWindow = function(title) return {} end, -- Create a window
+    createTab = function(parent, name, onSelect) return {} end, -- Create a tab
+    createButton = function(parent, label, onClick) return {} end, -- Create a button
+    createTextField = function(parent, placeholder) return "" end, -- Create a text field
+    createLabel = function(parent, text) return {} end, -- Create a label
+    refreshContent = function(parent) end, -- Refresh parent container after updates
+}
+
+-- Mock player and game data
+local players = {
+    ["Player1"] = { name = "Player1", gcube = 100, inventory = { ["Sword"] = 1 } },
+    ["Player2"] = { name = "Player2", gcube = 200, inventory = { ["Shield"] = 1 } },
+}
+
+local gameVariables = {
+    gravity = 9.8,
+    speedMultiplier = 1.0,
+}
+
+--- Initializes the Player Management Tab
+---@param parent any -- The parent UI container
+function GMPanel.initPlayerManagementTab(parent)
+    local playerNameField = UI.createTextField(parent, "Enter Player Name")
+    local gcubeField = UI.createTextField(parent, "Enter Gcube Amount")
+
+    -- Button: Add Gcube
+    UI.createButton(parent, "Add Gcube", function()
+        local playerName = playerNameField -- Retrieve text field value
+        local gcubeAmount = tonumber(gcubeField) -- Retrieve text field value
+        local player = players[playerName]
+        if player then
+            player.gcube = player.gcube + gcubeAmount
+            UI.refreshContent(parent) -- Refresh UI to reflect changes
+        end
+    end)
+
+    -- Button: View Inventory
+    UI.createButton(parent, "View Inventory", function()
+        local playerName = playerNameField -- Retrieve text field value
+        local player = players[playerName]
+        if player then
+            -- Display inventory dynamically
+            for itemName, quantity in pairs(player.inventory) do
+                UI.createLabel(parent, itemName .. " x" .. quantity)
+            end
+            UI.refreshContent(parent)
+        end
+    end)
+end
+
+--- Initializes the Game Variables Tab
+---@param parent any -- The parent UI container
+function GMPanel.initGameVariablesTab(parent)
+    local gravityField = UI.createTextField(parent, "Enter Gravity")
+    local speedMultiplierField = UI.createTextField(parent, "Enter Speed Multiplier")
+
+    -- Button: Update Game Variables
+    UI.createButton(parent, "Update Variables", function()
+        local newGravity = tonumber(gravityField) -- Retrieve value
+        local newSpeedMultiplier = tonumber(speedMultiplierField) -- Retrieve value
+        if newGravity then gameVariables.gravity = newGravity end
+        if newSpeedMultiplier then gameVariables.speedMultiplier = newSpeedMultiplier end
+        UI.refreshContent(parent) -- Refresh UI after updates
+    end)
+end
+
+--- Initializes the Debug Tools Tab
+---@param parent any -- The parent UI container
+function GMPanel.initDebugToolsTab(parent)
+    -- Button: Enable Debug Mode
+    UI.createButton(parent, "Enable Debug Mode", function()
+        -- Replace this with actual debug mode logic
+    end)
+
+    -- Button: Spawn Test Items
+    UI.createButton(parent, "Spawn Test Items", function()
+        -- Replace this with logic to spawn test items
+    end)
+end
+
+--- Initializes the GM Panel
+function GMPanel.init()
+    -- Main window for GM Panel
+    local window = UI.createWindow("GM Panel")
+
+    -- Create tabs
+    UI.createTab(window, "Player Management", function()
+        GMPanel.initPlayerManagementTab(window)
+    end)
+
+    UI.createTab(window, "Game Variables", function()
+        GMPanel.initGameVariablesTab(window)
+    end)
+
+    UI.createTab(window, "Debug Tools", function()
+        GMPanel.initDebugToolsTab(window)
+    end)
+end
+
+-- Initialize GM Panel
+GMPanel.init()
+
+return GMPanel
